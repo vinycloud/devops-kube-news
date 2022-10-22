@@ -25,7 +25,7 @@ pipeline {
         stage ('Deploy in Cluster Kubernetes - EKS') {
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) {
-                    sh 'export AWS_PROFILE=terraform'
+                    sh 'aws eks update-kubeconfig --region us-east-2 --name=education-eks-9VKtBqT4'
                     sh 'kubectl apply -f ./k8s/deployment.yaml'
                 }
             }
