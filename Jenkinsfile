@@ -21,5 +21,13 @@ pipeline {
                 }
             }
         }
+
+        stage ('Deploy in Cluster Kubernetes - EKS') {
+            steps {
+                withKubeconfig([credentialsId: 'kubeconfig']) {
+                    sh 'kubectl apply -f ./k8s/deployment.yaml'
+                }
+            }
+        }
     }
 }   
