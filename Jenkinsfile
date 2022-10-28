@@ -28,6 +28,7 @@ pipeline {
             }
             steps {
                 withKubeConfig([credentialsId: 'kubeconfig']) { 
+                    sh 'export AWS_PROFILE=terraform'
                     sh 'sed -i "s/{{TAG}}/$tag_version/g" ./k8s/deployment.yaml'                     
                     sh 'kubectl apply -f ./k8s/deployment.yaml'
                 }
