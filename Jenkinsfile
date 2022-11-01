@@ -1,39 +1,27 @@
-pipeline {
-    agent any
-    
-    stages {
+node {
 
-        stage ('Build Docker Image') {
-            steps {
-                script {
-                    dockerapp = docker.build("vinycloud/devops-kube-news:${env.BUILD_ID}", '-f ./src/Dockerfile ./src')
-                }
-            }
-        }
+    stage("Git Clone"){
 
-        stage ('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                        dockerapp.push('latest')
-                        dockerapp.push("${env.BUILD_ID}")
-                    }
-                }
-            }
-        }
-
-        stage ('Deploy in Cluster Kubernetes') {
-            environment {
-                tag_version = "${env.BUILD_ID}"
-            }
-            steps {
-                withKubeConfig([credentialsId: 'kubeconfig']) { 
-                    sh 'export AWS_PROFILE=terraform'
-                    sh 'aws eks update-kubeconfig --region us-east-1 --name eks-fialho'
-                    sh 'sed -i "s/{{TAG}}/$tag_version/g" ./k8s/deployment.yaml'                     
-                    sh 'kubectl apply -f ./k8s/deployment.yaml'
-                }
-            }
-        }
+        git credentialsId: 'GIT_HUB_CREDENTIALS', url: 'https://github.com/vinycloud/k8s-eks-jenkins.git'
     }
-}   
+
+    stage("Docker build"){
+
+        sh 'docker version'
+        sh 'docker build -t jhooq-docker-demo .'
+        sh 'docker image list'
+        sh 'docker tag jhooq-docker-demo vinycloud/jhooq-docker-demo:jhooq-docker-demo'
+    }
+
+    withCredentials([string(credentialsId: 'DOCKER_HUB_PASSWORD', variable: 'PASSWORD')]) {
+        sh 'docker login -u vinycloud -p $PASSWORD'
+    }
+
+    stage("Push Image to Docker Hub"){
+        sh 'docker push  vinycloud/jhooq-docker-demo:jhooq-docker-demo'
+    }
+    
+    stage("kubernetes deployment"){
+        sh 'kubectl apply -f k8s-spring-boot-deployment.yml'
+    }
+} 
