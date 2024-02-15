@@ -1,34 +1,63 @@
-name: CI-CD
+name: Deploy to Minikube using GitHub Actions
 
-on:
-  push:
-    branches: ["main"]
-
-env:
-  KUBECONFIG: $(kind get kubeconfig --name fialho)
-
+on: [push]
+  
 jobs:
-  CI:
+  job1:
     runs-on: ubuntu-latest
-
+    name: build Node.js Docker Image and deploy to minikube
     steps:
-      - uses: actions/checkout@v4.1.1
-
-      - name: Authentication in Docker Hub...
-        uses: docker/login-action@v3.0.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PWD }}
+    - uses: actions/checkout@v2
+    - name: Start minikube
+      uses: medyagh/setup-minikube@master
+    - name: Try the cluster !
+      run: kubectl get pods -A
+    - name: Build image
+      run: |
+          export SHELL=/bin/bash
+          eval $(minikube -p minikube docker-env)
+          docker build -f /src/Dockerfile -t vinycloud/kube-news-2024:${{ github.run_number }} .
+          echo -n "verifying images:"
+          docker images         
+    - name: Deploy to minikube
+      run:
+        kubectl apply -f k8s-node-app.yaml
+    - name: Test service URLs
+      run: |
+          minikube service list
+          minikube service nodejs-app --url
           
-      - name: Building Docker Image...
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: ./src
-          file: ./src/Dockerfile
-          push: true
-          tags: |
-            vinycloud/kube-news-2024:${{ github.run_number }}
-            vinycloud/kube-news-2024:latest
+# name: CI-CD
+
+# on:
+#   push:
+#     branches: ["main"]
+
+# env:
+#   KUBECONFIG: $(kind get kubeconfig --name fialho)
+
+# jobs:
+#   CI:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4.1.1
+
+#       - name: Authentication in Docker Hub...
+#         uses: docker/login-action@v3.0.0
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USER }}
+#           password: ${{ secrets.DOCKERHUB_PWD }}
+          
+#       - name: Building Docker Image...
+#         uses: docker/build-push-action@v5.1.0
+#         with:
+#           context: ./src
+#           file: ./src/Dockerfile
+#           push: true
+#           tags: |
+#             vinycloud/kube-news-2024:${{ github.run_number }}
+#             vinycloud/kube-news-2024:latest
 
   CD:
     runs-on: ubuntu-latest 
