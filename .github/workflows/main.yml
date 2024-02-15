@@ -38,3 +38,10 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.K8S_CONFIG }}
+
+      - name: Deploy to Kubernetes Cluster...
+        uses: Azure/k8s-deploy@v4.9
+        with:
+          images: vinycloud/kube-news-2024:${{ github.run_number }}
+          manifests: |
+            k8s/deployment.yaml
