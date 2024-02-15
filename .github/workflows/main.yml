@@ -31,23 +31,27 @@ jobs:
     runs-on: ubuntu-latest 
     needs: [CI]
     steps:
-      - uses: actions/checkout@v4.1.1
-
-      # - name: Install kubectl
-      #   uses: Azure/setup-kubectl@v4.0.0
-      #   with:
-      #     version: 'v1.29.1'
-      #   id: install
+      - uses: actions/checkout@v4.1.1      
       
       - name: Defining context...
         uses: Azure/k8s-set-context@v3.0
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.K8S_CONFIG }}        
+          kubeconfig: ${{ secrets.K8S_CONFIG }}  
 
-      - name: Deploy to Kubernetes Cluster...
-        uses: Azure/k8s-deploy@v4.9
+      - name: Load docker image into kind cluster
+        run: kind load docker-image vinycloud/kube-news-2024:${{ github.run_number }}
+
+      - name: Deploy to Kubernetes
+        uses: appleboy/kubernetes-action@v0.5.0
         with:
-          images: vinycloud/kube-news-2024:${{ github.run_number }}
+          kubeconfig: ${{ secrets.K8S_CONFIG }}
           manifests: |
-            k8s/deployment.yaml
+            k8s/deployment.yaml          
+
+      # - name: Deploy to Kubernetes Cluster...
+      #   uses: Azure/k8s-deploy@v4.9
+      #   with:
+      #     images: vinycloud/kube-news-2024:${{ github.run_number }}
+      #     manifests: |
+      #       k8s/deployment.yaml
