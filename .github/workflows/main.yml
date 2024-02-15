@@ -24,5 +24,5 @@ jobs:
           file: ./src/Dockerfile
           push: true
           tags: |
-            vinycloud/kube-news-2024:v1
+            vinycloud/kube-news-2024:${{ github.run_number }}
             vinycloud/kube-news-2024:latest
