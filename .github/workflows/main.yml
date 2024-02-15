@@ -46,7 +46,7 @@ jobs:
           kubeconfig: ${{ secrets.K8S_CONFIG }}        
 
       - name: Deploy to Kubernetes Cluster...
-        uses: Arv1nt3/kubernetes-deployment-tester-action@v1.0.0
+        uses: Azure/k8s-deploy@v4.9
         with:
           images: vinycloud/kube-news-2024:${{ github.run_number }}
           manifests: |
