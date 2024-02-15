@@ -33,11 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
 
-      - name: Install kubectl
-        uses: Azure/setup-kubectl@v4.0.0
-        with:
-          version: 'v1.29.1'
-        id: install
+      # - name: Install kubectl
+      #   uses: Azure/setup-kubectl@v4.0.0
+      #   with:
+      #     version: 'v1.29.1'
+      #   id: install
       
       - name: Defining context...
         uses: Azure/k8s-set-context@v3.0
