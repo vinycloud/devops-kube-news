@@ -26,3 +26,15 @@ jobs:
           tags: |
             vinycloud/kube-news-2024:${{ github.run_number }}
             vinycloud/kube-news-2024:latest
+
+  CD:
+    runs-on: ubuntu-latest 
+    needs: [CI]
+    steps:
+      - uses: actions/checkout@v4.1.1
+      
+      - name: Defining context...
+        uses: Azure/k8s-set-context@v3.0
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.K8S_CONFIG }}
