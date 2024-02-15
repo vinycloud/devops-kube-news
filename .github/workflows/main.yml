@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 env:
-  KUBECONFIG: $(kind get kubeconfig --internal)
+  KUBECONFIG: $(kind get kubeconfig --name fialho)
 
 jobs:
   CI:
