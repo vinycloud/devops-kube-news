@@ -43,7 +43,7 @@ jobs:
         run: kind load docker-image vinycloud/kube-news-2024:${{ github.run_number }}
 
       - name: Deploy to Kubernetes
-        uses: appleboy/kubernetes-action@v0.5.0
+        uses: appleboy/kubernetes-action@v0.0.1
         with:
           kubeconfig: ${{ secrets.K8S_CONFIG }}
           manifests: |
